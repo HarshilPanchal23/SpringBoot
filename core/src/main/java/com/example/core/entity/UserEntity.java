@@ -30,5 +30,7 @@ public class UserEntity {
     @Column(name = "password")
     private String password;
 
+    @Column(name = "status")
+    private Boolean status;
 
 }
