@@ -8,11 +8,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 
 
-@Getter
-
-public class CustomException extends Throwable {
+public class CustomException extends RuntimeException {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CustomException.class);
+
+    private static final long serialVersionUID = 1L;
+
     private final String message;
     private final HttpStatus httpStatus;
 
@@ -20,5 +21,14 @@ public class CustomException extends Throwable {
         LOGGER.info("message : {}, httpStatus : {}",message,httpStatus);
         this.message = message;
         this.httpStatus = httpStatus;
+    }
+
+    @Override
+    public String getMessage() {
+        return message;
+    }
+
+    public HttpStatus getHttpStatus() {
+        return httpStatus;
     }
 }

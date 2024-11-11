@@ -7,5 +7,7 @@ public interface UserService {
     UserRequestDto insertUser(UserRequestDto userRequestDto) throws CustomException;
 
     UserRequestDto updateUser(UserRequestDto userRequestDto) throws CustomException;
+
+    void deleteUserById(Long userId) throws CustomException;
 }
 
