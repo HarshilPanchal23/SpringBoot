@@ -2,7 +2,6 @@ package com.example.core.controller;
 
 import com.example.core.dto.ApiResponse;
 import com.example.core.dto.UserRequestDto;
-import com.example.core.dto.UserResponseDto;
 import com.example.core.enums.ApiResponsesEnum;
 import com.example.core.enums.ExceptionEnum;
 import com.example.core.exception.CustomException;
@@ -27,7 +26,7 @@ public class UserController {
     public ResponseEntity<ApiResponse> insertUser(@RequestBody UserRequestDto userRequestDto) throws CustomException {
 
         try {
-            UserResponseDto responseDTO = userService.insertUser(userRequestDto);
+            UserRequestDto responseDTO = userService.insertUser(userRequestDto);
             return new ResponseEntity<>(
                     new ApiResponse(HttpStatus.OK, ApiResponsesEnum.USER_CREATION_SUCCESSFULLY.getValue(), responseDTO),
                     HttpStatus.OK);
@@ -44,7 +43,7 @@ public class UserController {
 
         try {
             userRequestDto.setId(userId);
-            UserResponseDto responseDTO = userService.updateUser(userRequestDto);
+            UserRequestDto responseDTO = userService.updateUser(userRequestDto);
             return new ResponseEntity<>(
                     new ApiResponse(HttpStatus.OK, ApiResponsesEnum.USER_CREATION_SUCCESSFULLY.getValue(), responseDTO),
                     HttpStatus.OK);

@@ -24,8 +24,7 @@ public class ApiResponse {
     private HttpStatus httpStatus;
 
 
-    public ApiResponse(HttpStatus httpStatus, String value, UserResponseDto responseDTO) {
-
-
+    public ApiResponse(HttpStatus httpStatus, String value, UserRequestDto responseDTO) {
     }
+
 }
