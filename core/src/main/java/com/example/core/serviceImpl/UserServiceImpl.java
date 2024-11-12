@@ -3,7 +3,6 @@ package com.example.core.serviceImpl;
 import com.example.core.dto.UserRequestDto;
 import com.example.core.dto.UserResponseDto;
 import com.example.core.entity.UserEntity;
-import com.example.core.enums.ApiResponsesEnum;
 import com.example.core.enums.ExceptionEnum;
 import com.example.core.exception.CustomException;
 import com.example.core.repository.UserRepository;
@@ -69,6 +68,7 @@ public class UserServiceImpl implements UserService {
             throw new CustomException(ExceptionEnum.USER_DELETED_WITH_ID.getValue(), HttpStatus.BAD_REQUEST);
         }
         userEntity.setStatus(Boolean.FALSE);
+        userEntity.setDeactivate(Boolean.TRUE);
         userRepository.save(userEntity);
     }
 
@@ -92,15 +92,13 @@ public class UserServiceImpl implements UserService {
 
         Optional<UserEntity> userEntityByUser = userRepository.findById(userId);
 
-        if(!userEntityByUser.isPresent()){
+        if (!userEntityByUser.isPresent()) {
             throw new CustomException(ExceptionEnum.USER_WITH_ID_NOT_FOUND.getValue(), HttpStatus.NOT_FOUND);
         }
 
         return modelMapper.map(userEntityByUser, UserResponseDto.class);
 
     }
-
-
 
 
     private UserEntity insertUpdateUser(UserRequestDto userRequestDto) throws CustomException {
@@ -115,11 +113,20 @@ public class UserServiceImpl implements UserService {
 
             Optional<UserEntity> userEntityOptional = userRepository.findByEmail(userRequestDto.getEmail());
 
-            if (!userEntityOptional.isPresent()) {
-                LOGGER.error("insertUpdate User :: User with id {} not found", userRequestDto.getId());
-                throw new CustomException(ExceptionEnum.USER_WITH_ID_NOT_FOUND.getValue(), HttpStatus.NOT_FOUND);
-            }
-
+            userEntityOptional.ifPresentOrElse(
+                    existingUser -> {
+                        // Check if user with provided ID exists
+                        if (!existingUser.getId().equals(userRequestDto.getId())) {
+                            LOGGER.error("User with email {} exists but with different ID", userRequestDto.getEmail());
+                            throw new CustomException(ExceptionEnum.USER_WITH_ID_NOT_FOUND.getValue(), HttpStatus.NOT_FOUND);
+                        }
+                    },
+                    () -> {
+                        // Throw exception if user doesn't exist
+                        LOGGER.error("User with email {} not found for update", userRequestDto.getEmail());
+                        throw new CustomException(ExceptionEnum.USER_WITH_EMAIL_NOT_FOUND.getValue(), HttpStatus.NOT_FOUND);
+                    }
+            );
             System.out.println("userEntityOptional.get() = " + userEntityOptional.get());
 
         } else {
@@ -127,6 +134,7 @@ public class UserServiceImpl implements UserService {
             userEntity = new UserEntity();
 
         }
+
         userEntity = modelMapper.map(userRequestDto, UserEntity.class);
         return userRepository.save(userEntity);
     }
@@ -134,7 +142,8 @@ public class UserServiceImpl implements UserService {
 
     private List<UserResponseDto> mapToListOfUserRequestDto(List<UserEntity> userEntityList) {
         // Using ModelMapper to convert the list of UserEntity to UserRequestDto.
-        return modelMapper.map(userEntityList, new TypeToken<List<UserResponseDto>>(){}.getType());
+        return modelMapper.map(userEntityList, new TypeToken<List<UserResponseDto>>() {
+        }.getType());
     }
 
 }

@@ -17,7 +17,9 @@ public enum ExceptionEnum {
 
     USER_DELETED_WITH_ID("User Deleted Successfully", "USER_DELETED_WITH_ID"),
 
-    NO_PROPERTY_WITH_NAME_FOUND_IN_DATABASE("No Property Found in Database", "NO_PROPERTY_WITH_NAME_FOUND_IN_DATABASE");
+    NO_PROPERTY_WITH_NAME_FOUND_IN_DATABASE("No Property Found in Database", "NO_PROPERTY_WITH_NAME_FOUND_IN_DATABASE"),
+
+    USER_WITH_EMAIL_NOT_FOUND("User with email not found","USER_WITH_EMAIL_NOT_FOUND" );
 
 
     private final String value;
