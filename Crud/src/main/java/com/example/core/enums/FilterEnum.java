@@ -1,6 +1,5 @@
 package com.example.core.enums;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
