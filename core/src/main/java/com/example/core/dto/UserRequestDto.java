@@ -33,4 +33,6 @@ public class UserRequestDto {
 
     private Boolean status;
 
+    private Boolean deactivate;
+
 }

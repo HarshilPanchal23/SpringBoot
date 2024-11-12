@@ -1,5 +1,6 @@
 package com.example.core.entity;
 
+import com.example.core.dto.BaseEntityAudit;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -10,7 +11,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class UserEntity {
+public class UserEntity extends BaseEntityAudit {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,7 +29,7 @@ public class UserEntity {
     @Column(name = "password", nullable = false)
     private String password;
 
-    @Column(name = "status", nullable = false)
-    private Boolean status;
-
+    public UserEntity(long l) {
+        this.id=l;
+    }
 }
