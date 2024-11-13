@@ -3,11 +3,10 @@ package com.example.core.dto;
 import com.example.core.entity.UserEntity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.DynamicInsert;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -21,6 +20,9 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@DynamicInsert
+@SuperBuilder
+@ToString
 public abstract class BaseEntityAudit implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -54,23 +56,23 @@ public abstract class BaseEntityAudit implements Serializable {
     private Boolean deactivate;
 
 
-    @PrePersist
-    public void beforePersist() {
-        this.createdBy = new UserEntity(1L);
-        this.updatedBy = new UserEntity(1L);
-    }
-
-    @PreUpdate
-    public void beforeUpdate() {
-        this.createdBy = new UserEntity(1L);
-        this.updatedBy = new UserEntity(1L);
-    }
-
-    @PreRemove
-    public void BeforeRemove() {
-        this.createdBy = new UserEntity(1L);
-        this.updatedBy = new UserEntity(1L);
-    }
+//    @PrePersist
+//    public void beforePersist() {
+//        this.createdBy = new UserEntity(1L);
+//        this.updatedBy = new UserEntity(1L);
+//    }
+//
+//    @PreUpdate
+//    public void beforeUpdate() {
+//        this.createdBy = new UserEntity(1L);
+//        this.updatedBy = new UserEntity(1L);
+//    }
+//
+//    @PreRemove
+//    public void BeforeRemove() {
+//        this.createdBy = new UserEntity(1L);
+//        this.updatedBy = new UserEntity(1L);
+//    }
 
 
 }
