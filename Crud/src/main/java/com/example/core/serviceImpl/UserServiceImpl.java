@@ -8,6 +8,7 @@ import com.example.core.exception.CustomException;
 import com.example.core.repository.UserRepository;
 import com.example.core.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.apache.catalina.User;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.slf4j.Logger;
@@ -17,6 +18,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -33,7 +35,6 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
-
     public UserRequestDto insertUser(UserRequestDto userRequestDto) throws CustomException {
 
         userRequestDto.setId(null);
@@ -103,40 +104,41 @@ public class UserServiceImpl implements UserService {
 
     private UserEntity insertUpdateUser(UserRequestDto userRequestDto) throws CustomException {
 
-        LOGGER.info("in insertUpdate user method : {}", userRequestDto);
+            UserEntity userEntity = null;
 
-        UserEntity userEntity;
+            if (userRequestDto.getId() != null) {
 
-        System.out.println("userRequestDto = " + userRequestDto);
+                // find by with active satus and delete status
+                UserEntity userEntityOptional = userRepository.findById(userRequestDto.getId()).orElseThrow(() ->
+                        new CustomException(ExceptionEnum.USER_WITH_ID_NOT_FOUND.getValue(), HttpStatus.NOT_FOUND));
 
-        if (userRequestDto.getId() != null) {
+                 userEntity = updateUserEntity(userEntityOptional, userRequestDto);
 
-            Optional<UserEntity> userEntityOptional = userRepository.findByEmail(userRequestDto.getEmail());
+            } else {
+                userEntity = userEntity.builder()
+                        .email(userRequestDto.getEmail())
+                        .firstName(userRequestDto.getFirstName())
+                        .lastName(userRequestDto.getLastName())
+                        .password(userRequestDto.getPassword())
+                        .status(userRequestDto.getStatus())
+                        .deactivate(userRequestDto.getDeactivate())
+                        .build();
+            }
 
-            userEntityOptional.ifPresentOrElse(
-                    existingUser -> {
-                        // Check if user with provided ID exists
-                        if (!existingUser.getId().equals(userRequestDto.getId())) {
-                            LOGGER.error("User with email {} exists but with different ID", userRequestDto.getEmail());
-                            throw new CustomException(ExceptionEnum.USER_WITH_ID_NOT_FOUND.getValue(), HttpStatus.NOT_FOUND);
-                        }
-                    },
-                    () -> {
-                        // Throw exception if user doesn't exist
-                        LOGGER.error("User with email {} not found for update", userRequestDto.getEmail());
-                        throw new CustomException(ExceptionEnum.USER_WITH_EMAIL_NOT_FOUND.getValue(), HttpStatus.NOT_FOUND);
-                    }
-            );
-            System.out.println("userEntityOptional.get() = " + userEntityOptional.get());
+            return userRepository.save(userEntity);
 
-        } else {
+    }
 
-            userEntity = new UserEntity();
+    private UserEntity updateUserEntity(UserEntity userEntityOptional, UserRequestDto userRequestDto) {
 
-        }
+        userEntityOptional.setFirstName(userRequestDto.getFirstName());
+        userEntityOptional.setLastName(userRequestDto.getLastName());
+        userEntityOptional.setEmail(userRequestDto.getEmail());
+        userEntityOptional.setPassword(userRequestDto.getPassword());
+        userEntityOptional.setStatus(userRequestDto.getStatus());
+        userEntityOptional.setDeactivate(userRequestDto.getDeactivate());
+        return userEntityOptional;
 
-        userEntity = modelMapper.map(userRequestDto, UserEntity.class);
-        return userRepository.save(userEntity);
     }
 
 
