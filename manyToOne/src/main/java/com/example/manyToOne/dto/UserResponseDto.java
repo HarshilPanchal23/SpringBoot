@@ -1,10 +1,14 @@
 package com.example.manyToOne.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
+@AllArgsConstructor
+@RequiredArgsConstructor
 public class UserResponseDto {
 
     private String firstName;
@@ -17,5 +21,7 @@ public class UserResponseDto {
 
     private Boolean status;
 
-    private OrganizationResponseDto organizationResponseDto;
+    private Boolean deactivate;
+
+    private OrganizationResponseDto organization;
 }

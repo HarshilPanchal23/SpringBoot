@@ -8,7 +8,6 @@ import com.example.core.exception.CustomException;
 import com.example.core.repository.UserRepository;
 import com.example.core.service.UserService;
 import lombok.RequiredArgsConstructor;
-import org.apache.catalina.User;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.slf4j.Logger;
@@ -18,7 +17,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -115,7 +113,8 @@ public class UserServiceImpl implements UserService {
                  userEntity = updateUserEntity(userEntityOptional, userRequestDto);
 
             } else {
-                userEntity = userEntity.builder()
+
+                 userEntity.builder()
                         .email(userRequestDto.getEmail())
                         .firstName(userRequestDto.getFirstName())
                         .lastName(userRequestDto.getLastName())

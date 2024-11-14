@@ -2,6 +2,7 @@ package com.example.manyToOne.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 @Table(name = "organization_table")
 @Entity
@@ -10,8 +11,8 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-
-public class OrganizationEntity extends BaseEntityAudit{
+@SuperBuilder
+public class OrganizationEntity extends BaseEntityAudit {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
