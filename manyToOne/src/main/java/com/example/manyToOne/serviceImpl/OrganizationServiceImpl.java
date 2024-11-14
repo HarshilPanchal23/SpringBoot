@@ -54,7 +54,6 @@ public class OrganizationServiceImpl implements OrganizationService {
         organizationRequestDto.setId(null);
         OrganizationEntity organizationEntity = this.insertUpdateOrganization(organizationRequestDto);
         OrganizationResponseDto organizationResponseDto = modelMapper.map(organizationEntity, OrganizationResponseDto.class);
-        System.out.println("organizationResponseDto = " + organizationResponseDto.toString());
         return organizationResponseDto;
     }
 
@@ -63,41 +62,47 @@ public class OrganizationServiceImpl implements OrganizationService {
     public OrganizationResponseDto updateOrganization(OrganizationRequestDto organizationRequestDto) {
         OrganizationEntity organizationEntity = insertUpdateOrganization(organizationRequestDto);
         OrganizationResponseDto organizationResponseDto = modelMapper.map(organizationEntity, OrganizationResponseDto.class);
-        System.out.println("organizationResponseDto = " + organizationResponseDto.toString());
         return organizationResponseDto;
     }
 
 
     private OrganizationEntity insertUpdateOrganization(OrganizationRequestDto organizationRequestDto) {
 
-        OrganizationEntity organizationEntity;
+        OrganizationEntity organizationEntity = null;
 
         if (organizationRequestDto.getId() != null) {
-            Optional<OrganizationEntity> byOrganizationName = organizationRepository.
-                    findByOrganizationName(organizationRequestDto.getOrganizationName());
 
-            byOrganizationName.ifPresentOrElse(
-                    existingOrganization -> {
-                        if (!existingOrganization.getId().equals(organizationRequestDto.getId())) {
-                            LOGGER.error("Organization with name {} exists but with different ID", organizationRequestDto.getOrganizationName());
-                            throw new CustomException(ExceptionEnum.Organization_WITH_ID_NOT_FOUND.getValue(), HttpStatus.NOT_FOUND);
-                        }
-                    },
-                    () -> {
-                        // Throw exception if user doesn't exist
-                        LOGGER.error("Organization with name {} not found for update", organizationRequestDto.getOrganizationName());
-                        throw new CustomException(ExceptionEnum.USER_WITH_EMAIL_NOT_FOUND.getValue(), HttpStatus.NOT_FOUND);
-                    }
-            );
+            OrganizationEntity organizationEntity1 = organizationRepository.findById(organizationRequestDto.getId()).orElseThrow(() ->
+                    new CustomException(ExceptionEnum.USER_WITH_ID_NOT_FOUND.getValue(), HttpStatus.NOT_FOUND));
+
+
+            organizationEntity = updateOrganizationEntity(organizationEntity1, organizationRequestDto);
+
+
         } else {
-            organizationEntity = new OrganizationEntity();
-            System.out.println("organizationEntity = " + organizationEntity);
+
+
+          organizationEntity =   organizationEntity.builder()
+                    .organizationName(organizationRequestDto.getOrganizationName())
+                    .address(organizationRequestDto.getAddress())
+                    .status(organizationRequestDto.getStatus())
+                    .deactivate(organizationRequestDto.getDeactivate())
+                    .build();
+
 
         }
 
-        System.out.println("organizationRequestDto = " + organizationRequestDto.toString());
-        organizationEntity = modelMapper.map(organizationRequestDto, OrganizationEntity.class);
         return organizationRepository.save(organizationEntity);
+
+    }
+
+    private OrganizationEntity updateOrganizationEntity(OrganizationEntity organizationEntity1, OrganizationRequestDto organizationRequestDto) {
+
+        organizationEntity1.setOrganizationName(organizationRequestDto.getOrganizationName());
+        organizationEntity1.setAddress(organizationRequestDto.getAddress());
+        organizationEntity1.setStatus(organizationRequestDto.getStatus());
+        organizationEntity1.setDeactivate(organizationEntity1.getDeactivate());
+        return organizationEntity1;
 
     }
 

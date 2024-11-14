@@ -10,7 +10,7 @@ import org.springframework.data.domain.Pageable;
 public interface OrganizationService {
 
 
-    Page<OrganizationResponseDto> getAllOrganization(String trim, Pageable pageable);
+    Page<OrganizationResponseDto> getAllOrganization(String searchValue, Pageable pageable);
 
     OrganizationResponseDto insertOrganization(@Valid OrganizationRequestDto organizationRequestDto);
 

@@ -71,11 +71,11 @@ public class OrganizationController {
     }
 
     @PutMapping(value = "/{organizationId}")
-    public ResponseEntity<ApiResponse> updateOrganization(@Valid @PathVariable(value = "OrganizationId") Long OrganizationId, @RequestBody OrganizationRequestDto OrganizationRequestDto) throws CustomException {
+    public ResponseEntity<ApiResponse> updateOrganization(@Valid @PathVariable(value = "organizationId") Long organizationId, @RequestBody OrganizationRequestDto organizationRequestDto) throws CustomException {
 
         try {
-            OrganizationRequestDto.setId(OrganizationId);
-            OrganizationResponseDto responseDTO = organizationService.updateOrganization(OrganizationRequestDto);
+            organizationRequestDto.setId(organizationId);
+            OrganizationResponseDto responseDTO = organizationService.updateOrganization(organizationRequestDto);
             return new ResponseEntity<>(
                     new ApiResponse(HttpStatus.OK, ApiResponsesEnum.Organization_CREATION_SUCCESSFULLY.getValue(), responseDTO),
                     HttpStatus.OK);
@@ -88,9 +88,9 @@ public class OrganizationController {
     }
 
     @DeleteMapping(value = "/{organizationId}")
-    public ResponseEntity<ApiResponse> deleteOrganization(@PathVariable(value = "OrganizationId") Long OrganizationId) throws CustomException {
+    public ResponseEntity<ApiResponse> deleteOrganization(@PathVariable(value = "organizationId") Long organizationId) throws CustomException {
         try {
-            organizationService.deleteOrganizationById(OrganizationId);
+            organizationService.deleteOrganizationById(organizationId);
             return ResponseEntity.ok(new ApiResponse(HttpStatus.OK, ApiResponsesEnum.Organization_DELETED_SUCCESSFULLY.getValue()));
         } catch (Exception e) {
             LOGGER.error("Delete Organization  :: Exception ", e);

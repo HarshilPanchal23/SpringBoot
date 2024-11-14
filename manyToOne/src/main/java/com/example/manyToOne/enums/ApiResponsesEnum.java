@@ -9,7 +9,7 @@ import lombok.RequiredArgsConstructor;
 @AllArgsConstructor
 public enum ApiResponsesEnum {
 
-    ALL_USER_RETRIEVAL_SUCCESS("All User retrieval Success Successfully", "ALL_USER_RETRIEVAL_SUCCESS"),
+    ALL_USER_RETRIEVAL_SUCCESSFULLY("All User retrieval Success Successfully", "ALL_USER_RETRIEVAL_SUCCESSFULLY"),
 
     USER_CREATION_SUCCESSFULLY("User created successfully", "USER_CREATION_SUCCESSFULLY"),
 
