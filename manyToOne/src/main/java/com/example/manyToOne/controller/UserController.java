@@ -1,14 +1,12 @@
 package com.example.manyToOne.controller;
 
 import com.example.manyToOne.dto.ApiResponse;
-import com.example.manyToOne.dto.OrganizationResponseDto;
 import com.example.manyToOne.dto.UserRequestDto;
 import com.example.manyToOne.dto.UserResponseDto;
 import com.example.manyToOne.enums.ApiResponsesEnum;
 import com.example.manyToOne.enums.ExceptionEnum;
 import com.example.manyToOne.enums.FilterEnum;
 import com.example.manyToOne.exception.CustomException;
-import com.example.manyToOne.projection.UserProjection;
 import com.example.manyToOne.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -33,7 +31,7 @@ public class UserController {
 
 
     @GetMapping("/{organizationId}")
-    public ResponseEntity<ApiResponse> getAllOrganization(@RequestParam(value = "pageNo",
+    public ResponseEntity<ApiResponse> getAllUser(@RequestParam(value = "pageNo",
             defaultValue = "0") Integer pageNo,
                                                           @RequestParam(value = "pageSize",
                                                                   defaultValue = "10") Integer pageSize, @RequestParam(value = "searchValue", required = false,
@@ -46,7 +44,7 @@ public class UserController {
         try {
             // making pageable request
             Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by(sortAs, sortBy.getValue()));
-            Page<UserProjection> userResponseDtoPage = userService.getAllUserByOrganizationId(organizationId, searchValue.trim(), pageable);
+            Page<UserResponseDto> userResponseDtoPage = userService.getAllUserByOrganizationId(organizationId, searchValue.trim(), pageable);
             return ResponseEntity.ok(
                     new ApiResponse(HttpStatus.OK, ApiResponsesEnum.ALL_USER_RETRIEVAL_SUCCESSFULLY.getValue(), userResponseDtoPage));
         } catch (Exception e) {
@@ -70,6 +68,36 @@ public class UserController {
             throw new CustomException(ExceptionEnum.SOMETHING_WENT_WRONG.getValue(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
+    }
+
+    @PutMapping(value = "/{userId}")
+    public ResponseEntity<ApiResponse> updateUser(@Valid @PathVariable(value = "userId") Long userId, @RequestBody UserRequestDto userRequestDto) throws CustomException {
+
+        try {
+            userRequestDto.setId(userId);
+            UserResponseDto responseDTO = userService.updateUser(userRequestDto);
+            return new ResponseEntity<>(
+                    new ApiResponse(HttpStatus.OK, ApiResponsesEnum.USER_UPDATED_SUCCESSFULLY.getValue(), responseDTO),
+                    HttpStatus.OK);
+
+        } catch (Exception e) {
+            LOGGER.error("Exception while update user : {1}", e);
+            throw new CustomException(ExceptionEnum.SOMETHING_WENT_WRONG.getValue(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+    }
+
+    @PutMapping(value = "/status/{userId}/{organizationId}/{status}")
+    public ResponseEntity<ApiResponse> enableDisableUserById(@PathVariable(name = "userId") Long userId,
+                                                             @PathVariable(name = "organizationId") Long organizationId, @PathVariable(name = "status") Boolean status) {
+        try {
+            return ResponseEntity.ok(new ApiResponse(HttpStatus.OK, this.userService.enableDisableUserById(userId, organizationId,status)));
+        } catch (CustomException e) {
+            throw e;
+        } catch (Exception e) {
+            LOGGER.error("enableDisableUserById :: Exception ", e);
+            throw new CustomException(ExceptionEnum.SOMETHING_WENT_WRONG.getValue(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
 

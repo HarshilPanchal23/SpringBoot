@@ -36,6 +36,10 @@ public class ApiResponse {
         this.message = message;
     }
 
+    public ApiResponse(String message) {
+        this.message = message;
+    }
+
     public ApiResponse(CustomStatusEnum status, String message, Object data) {
         this.status = status.getValue();
         this.message = message;
