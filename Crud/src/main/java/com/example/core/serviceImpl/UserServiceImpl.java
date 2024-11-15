@@ -53,24 +53,20 @@ public class UserServiceImpl implements UserService {
     @Override
     public void deleteUserById(Long userId) throws CustomException {
 
-        Optional<UserEntity> userEntityOptional = userRepository.findById(userId);
 
-        if (!userEntityOptional.isPresent()) {
-            LOGGER.error("delete User :: User details with id {} not found", userId);
-            throw new CustomException(ExceptionEnum.USER_WITH_ID_NOT_FOUND.getValue(), HttpStatus.NOT_FOUND);
-        }
+        UserEntity user = checkForUserExistOrNot(userId);
 
-        UserEntity userEntity = userEntityOptional.get();
+        UserEntity userEntity = user;
 
         if (Boolean.FALSE.equals(userEntity.getStatus())) {
             LOGGER.error("User is deleted with given id {}", userId);
             throw new CustomException(ExceptionEnum.USER_DELETED_WITH_ID.getValue(), HttpStatus.BAD_REQUEST);
         }
+
         userEntity.setStatus(Boolean.FALSE);
         userEntity.setDeactivate(Boolean.TRUE);
         userRepository.save(userEntity);
     }
-
 
     @Override
     public Page<UserResponseDto> getAllUsers(String searchValue, Pageable pageable) {
@@ -89,7 +85,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserResponseDto getUserbyId(Long userId) {
 
-        Optional<UserEntity> userEntityByUser = userRepository.findById(userId);
+        Optional<UserEntity> userEntityByUser = userRepository.findByIdAndStatusAndDeactivate(userId, Boolean.TRUE, Boolean.FALSE);
 
         if (!userEntityByUser.isPresent()) {
             throw new CustomException(ExceptionEnum.USER_WITH_ID_NOT_FOUND.getValue(), HttpStatus.NOT_FOUND);
@@ -102,29 +98,27 @@ public class UserServiceImpl implements UserService {
 
     private UserEntity insertUpdateUser(UserRequestDto userRequestDto) throws CustomException {
 
-            UserEntity userEntity = null;
+        UserEntity userEntity = null;
 
-            if (userRequestDto.getId() != null) {
+        if (userRequestDto.getId() != null) {
 
-                // find by with active satus and delete status
-                UserEntity userEntityOptional = userRepository.findById(userRequestDto.getId()).orElseThrow(() ->
-                        new CustomException(ExceptionEnum.USER_WITH_ID_NOT_FOUND.getValue(), HttpStatus.NOT_FOUND));
+            UserEntity userEntityOptional = checkForUserExistOrNot(userRequestDto.getId());
 
-                 userEntity = updateUserEntity(userEntityOptional, userRequestDto);
+            userEntity = updateUserEntity(userEntityOptional, userRequestDto);
 
-            } else {
+        } else {
 
-                 userEntity.builder()
-                        .email(userRequestDto.getEmail())
-                        .firstName(userRequestDto.getFirstName())
-                        .lastName(userRequestDto.getLastName())
-                        .password(userRequestDto.getPassword())
-                        .status(userRequestDto.getStatus())
-                        .deactivate(userRequestDto.getDeactivate())
-                        .build();
-            }
+            userEntity.builder()
+                    .email(userRequestDto.getEmail())
+                    .firstName(userRequestDto.getFirstName())
+                    .lastName(userRequestDto.getLastName())
+                    .password(userRequestDto.getPassword())
+                    .status(userRequestDto.getStatus())
+                    .deactivate(userRequestDto.getDeactivate())
+                    .build();
+        }
 
-            return userRepository.save(userEntity);
+        return userRepository.save(userEntity);
 
     }
 
@@ -146,5 +140,12 @@ public class UserServiceImpl implements UserService {
         return modelMapper.map(userEntityList, new TypeToken<List<UserResponseDto>>() {
         }.getType());
     }
+
+    private UserEntity checkForUserExistOrNot(Long userId) {
+        return userRepository.findById(userId).orElseThrow(
+                () -> new CustomException(ExceptionEnum.USER_WITH_ID_NOT_FOUND.getValue(), HttpStatus.NOT_FOUND));
+
+    }
+
 
 }

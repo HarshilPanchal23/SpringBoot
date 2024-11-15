@@ -1,6 +1,5 @@
 package com.example.manyToOne.serviceImpl;
 
-import com.example.manyToOne.dto.ApiResponse;
 import com.example.manyToOne.dto.OrganizationResponseDto;
 import com.example.manyToOne.dto.UserRequestDto;
 import com.example.manyToOne.dto.UserResponseDto;
@@ -21,14 +20,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
 
 import java.util.List;
-import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
@@ -130,7 +124,7 @@ public class UserServiceImpl implements UserService {
             userEntity = updateUserEntity(userEntity1, userRequestDto, organizationEntity);
 
         } else {
-            System.out.println("in else part  = " + organizationEntity);
+
             userEntity = userEntity.builder()
                     .firstName(userRequestDto.getFirstName())
                     .lastName(userRequestDto.getLastName())
@@ -157,6 +151,12 @@ public class UserServiceImpl implements UserService {
         userEntityByOrganization.setOrganization(organizationEntity);
 
         return userEntityByOrganization;
+    }
+
+    private UserEntity checkForUserExistOrNot(Long userId) {
+        return userRepository.findById(userId).orElseThrow(
+                () -> new CustomException(ExceptionEnum.USER_WITH_ID_NOT_FOUND.getValue(), HttpStatus.NOT_FOUND));
+
     }
 
 

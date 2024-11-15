@@ -15,7 +15,7 @@ public interface UserService {
 
     Page<UserResponseDto> getAllUsers(String searchValue, Pageable pageable);
 
-    UserResponseDto getUserbyId(Long userId);
+    UserResponseDto getUserById(Long userId);
 }
 
 
