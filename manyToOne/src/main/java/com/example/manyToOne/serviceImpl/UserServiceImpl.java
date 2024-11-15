@@ -1,10 +1,12 @@
 package com.example.manyToOne.serviceImpl;
 
+import com.example.manyToOne.dto.ApiResponse;
 import com.example.manyToOne.dto.OrganizationResponseDto;
 import com.example.manyToOne.dto.UserRequestDto;
 import com.example.manyToOne.dto.UserResponseDto;
 import com.example.manyToOne.entity.OrganizationEntity;
 import com.example.manyToOne.entity.UserEntity;
+import com.example.manyToOne.enums.ApiResponsesEnum;
 import com.example.manyToOne.enums.ExceptionEnum;
 import com.example.manyToOne.exception.CustomException;
 import com.example.manyToOne.projection.UserProjection;
@@ -19,7 +21,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
 
 import java.util.List;
 import java.util.Optional;
@@ -41,25 +47,46 @@ public class UserServiceImpl implements UserService {
 
 
         UserEntity userEntity = insertUpdateUser(userRequestDto);
-        UserResponseDto userRequestDto1 = modelMapper.map(userEntity, UserResponseDto.class);
-        System.out.println("userRequestDto1 = " + userRequestDto1.toString());
-        return userRequestDto1;
+        UserResponseDto userResponseDto = modelMapper.map(userEntity, UserResponseDto.class);
+        System.out.println("userResponseDto = " + userResponseDto.toString());
+        return userResponseDto;
     }
 
     @Override
-    public Page<UserProjection> getAllUserByOrganizationId(Long organizationId, String trim, Pageable pageable) {
-        // Retrieve the user entities based on organization ID, search value, and active status
+    public UserResponseDto updateUser(UserRequestDto userRequestDto) {
+        UserEntity userEntity = insertUpdateUser(userRequestDto);
+        UserResponseDto userResponseDto = modelMapper.map(userEntity, UserResponseDto.class);
+        System.out.println("userResponseDto = " + userResponseDto.toString());
+        return userResponseDto;
+    }
+
+    @Override
+    public Page<UserResponseDto> getAllUserByOrganizationId(Long organizationId, String trim, Pageable pageable) {
+
         Page<UserProjection> users;
 
         users = userRepository
                 .findByOrganizationId(organizationId, pageable);
 
-//        System.out.println("users.getContent() = " + users.getContent().get(2).getOrganization().getOrganizationName());
-
-//        System.out.println("users.getContent().get(1) = " + users.getContent().get(1).getOrganization());
-        // Map each UserEntity to UserResponseDto
-        return users;
+        return users.map(this::objectToDTO);
     }
+
+    @Override
+    public String enableDisableUserById(Long userId, Long organizationId, Boolean status) {
+
+        OrganizationEntity organizationEntity = organizationRepository.
+                findById(organizationId).orElseThrow(() -> new CustomException(ExceptionEnum.Organization_WITH_ID_NOT_FOUND.getValue(), HttpStatus.NOT_FOUND));
+
+        UserEntity userEntity = userRepository.findByIdAndOrganization(userId, organizationEntity).
+                orElseThrow(() -> new CustomException(ExceptionEnum.USER_WITH_ID_NOT_FOUND.getValue(), HttpStatus.NOT_FOUND));
+
+        userEntity.setStatus(status);
+        userEntity.setDeactivate(userEntity.getStatus().equals(Boolean.TRUE) ? Boolean.FALSE : Boolean.TRUE);
+        userRepository.save(userEntity);
+
+        return Boolean.TRUE.equals(status) ? ApiResponsesEnum.USER_ENABLE_SUCCESSFULLY.getValue() : ApiResponsesEnum.USER_DISABLE_SUCCESSFULLY.getValue();
+    }
+
 
     private UserResponseDto objectToDTO(UserProjection userProjection) {
 
@@ -76,26 +103,8 @@ public class UserServiceImpl implements UserService {
         organizationDto.setAddress(userProjection.getAddress());
         userResponseDto.setOrganization(organizationDto);
         return userResponseDto;
+
     }
-
-
-//    private UserResponseDto objectToDTO(UserEntity userEntity) {
-//        UserResponseDto userDTO = new UserResponseDto();
-//        userDTO.setFirstName(userEntity.getFirstName());
-//        userDTO.setLastName(userEntity.getLastName());
-//        userDTO.setEmail(userEntity.getEmail());
-//        userDTO.setPassword(userEntity.getPassword());
-//        userDTO.setStatus(userEntity.getStatus());
-//        userDTO.setOrganizationId(userEntity.getOrganization().getId());
-//        return userDTO;
-//    }
-//
-//    // Example method to convert an organization entity to a DTO
-//    private OrganizationResponseDto objectToOrganizationDto(OrganizationEntity organization) {
-//        OrganizationResponseDto organizationDto = new OrganizationResponseDto();
-//        organizationDto.setOrganizationName(organization.getOrganizationName());
-//        return organizationDto;
-//    }
 
 
     private List<OrganizationResponseDto> mapToListOfOrganizationRequestDto(List<OrganizationEntity> organizationEntityList) {
@@ -106,41 +115,49 @@ public class UserServiceImpl implements UserService {
 
     private UserEntity insertUpdateUser(UserRequestDto userRequestDto) {
 
-        UserEntity userEntity;
+        UserEntity userEntity = null;
+
+        OrganizationEntity organizationEntity = organizationRepository.findById(userRequestDto.getOrganizationId()).
+                orElseThrow(() -> new CustomException(ExceptionEnum.Organization_WITH_ID_NOT_FOUND.getValue(), HttpStatus.NOT_FOUND));
 
 
         if (userRequestDto.getId() != null) {
 
-            Optional<UserEntity> userEntityOptional = userRepository.findByEmail(userRequestDto.getEmail());
+            UserEntity userEntity1 = userRepository.
+                    findByIdAndStatusAndDeactivate(userRequestDto.getId(), Boolean.TRUE, Boolean.FALSE).
+                    orElseThrow(() -> new CustomException(ExceptionEnum.Organization_WITH_ID_NOT_FOUND.getValue(), HttpStatus.NOT_FOUND));
 
-            userEntityOptional.ifPresentOrElse(
-                    existingUser -> {
-                        // Check if user with provided ID exists
-                        if (!existingUser.getId().equals(userRequestDto.getId())) {
-                            LOGGER.error("User with email {} exists but with different ID", userRequestDto.getEmail());
-                            throw new CustomException(ExceptionEnum.USER_WITH_ID_NOT_FOUND.getValue(), HttpStatus.NOT_FOUND);
-                        }
-                    },
-                    () -> {
-                        // Throw exception if user doesn't exist
-                        LOGGER.error("User with email {} not found for update", userRequestDto.getEmail());
-                        throw new CustomException(ExceptionEnum.USER_WITH_EMAIL_NOT_FOUND.getValue(), HttpStatus.NOT_FOUND);
-                    }
-            );
-            System.out.println("userEntityOptional.get() = " + userEntityOptional.get());
+            userEntity = updateUserEntity(userEntity1, userRequestDto, organizationEntity);
 
         } else {
-
-            userEntity = new UserEntity();
-
-            Optional<OrganizationEntity> organizationEntity = organizationRepository.findById(userRequestDto.getOrganizationId());
-
-            userEntity.setOrganization(organizationEntity.get());
-
+            System.out.println("in else part  = " + organizationEntity);
+            userEntity = userEntity.builder()
+                    .firstName(userRequestDto.getFirstName())
+                    .lastName(userRequestDto.getLastName())
+                    .email(userRequestDto.getEmail())
+                    .password(userRequestDto.getPassword())
+                    .status(userRequestDto.getStatus())
+                    .deactivate(userRequestDto.getDeactivate())
+                    .organization(organizationEntity)
+                    .build();
         }
 
-        userEntity = modelMapper.map(userRequestDto, UserEntity.class);
         return userRepository.save(userEntity);
 
     }
+
+    private UserEntity updateUserEntity(UserEntity userEntityByOrganization, UserRequestDto userRequestDto, OrganizationEntity organizationEntity) {
+
+        userEntityByOrganization.setFirstName(userRequestDto.getFirstName());
+        userEntityByOrganization.setLastName(userRequestDto.getLastName());
+        userEntityByOrganization.setStatus(userRequestDto.getStatus());
+        userEntityByOrganization.setDeactivate(userRequestDto.getDeactivate());
+        userEntityByOrganization.setEmail(userRequestDto.getEmail());
+        userEntityByOrganization.setPassword(userRequestDto.getPassword());
+        userEntityByOrganization.setOrganization(organizationEntity);
+
+        return userEntityByOrganization;
+    }
+
+
 }

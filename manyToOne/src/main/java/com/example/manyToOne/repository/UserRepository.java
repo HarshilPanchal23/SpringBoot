@@ -17,7 +17,7 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<com.example.manyToOne.entity.UserEntity, Long> {
 
 
-    Optional<UserEntity> findByEmail(String email);
+    Optional<UserEntity> findByIdAndStatusAndDeactivate(Long id,Boolean aTrue,Boolean aFalse);
 
     Page<UserEntity> findByFirstNameLike(String firstName, Pageable pageable);
 
@@ -30,6 +30,9 @@ public interface UserRepository extends JpaRepository<com.example.manyToOne.enti
             "INNER JOIN organization_table ot ON ot.id = u.organization_id " +
             "WHERE ot.id = :id")
     Page<UserProjection> findByOrganizationId(@Param("id") Long organizationId, Pageable pageable);
+
+    Optional<UserEntity> findByIdAndOrganization(Long userId, OrganizationEntity organizationEntity);
+
 }
 
 

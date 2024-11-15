@@ -21,7 +21,13 @@ public enum ApiResponsesEnum {
 
     Organization_CREATION_SUCCESSFULLY("Organization created successfully", "Organization_CREATION_SUCCESSFULLY"),
 
-    Organization_DELETED_SUCCESSFULLY("Organization Deleted Successfully", "Organization_DELETED_SUCCESSFULLY");
+    Organization_DELETED_SUCCESSFULLY("Organization Deleted Successfully", "Organization_DELETED_SUCCESSFULLY"),
+
+    USER_ENABLE_SUCCESSFULLY("User Enable Successfully", "USER_ENABLE_SUCCESSFULLY"),
+
+    USER_DISABLE_SUCCESSFULLY("User Disable Successfully", "USER_DISABLE_SUCCESSFULLY"),
+
+    USER_UPDATED_SUCCESSFULLY("User Updated Successfully", "USER_UPDATED_SUCCESSFULLY");
 
     private final String value;
 

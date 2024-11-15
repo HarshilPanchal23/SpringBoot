@@ -10,7 +10,11 @@ import org.springframework.data.domain.Pageable;
 public interface UserService {
     UserResponseDto insertUser(@Valid UserRequestDto userRequestDto);
 
-    Page<UserProjection> getAllUserByOrganizationId(Long organizationId, String trim, Pageable pageable);
+    Page<UserResponseDto> getAllUserByOrganizationId(Long organizationId, String trim, Pageable pageable);
 
+
+    String enableDisableUserById(Long userId, Long organizationId, Boolean status);
+
+    UserResponseDto updateUser(UserRequestDto userRequestDto);
 
 }

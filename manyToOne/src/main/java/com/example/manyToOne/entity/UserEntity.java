@@ -2,6 +2,7 @@ package com.example.manyToOne.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 @Table(name = "user_table")
 @Entity
@@ -10,6 +11,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
+@SuperBuilder
 public class UserEntity extends BaseEntityAudit {
 
 
