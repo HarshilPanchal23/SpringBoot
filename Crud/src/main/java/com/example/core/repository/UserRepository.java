@@ -12,9 +12,7 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<UserEntity, Long> {
 
 
-    Optional<UserEntity> findByIdAndStatusIsTrue(Long id);
-
-    Optional<UserEntity> findByEmail(String email);
+    Optional<UserEntity> findByIdAndStatusAndDeactivate(Long id, Boolean statusTrue, Boolean statusFalse);
 
     Page<UserEntity> findByFirstNameLike(String firstName, Pageable pageable);
 }

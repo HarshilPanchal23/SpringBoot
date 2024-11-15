@@ -58,7 +58,7 @@ public class UserController {
     public ResponseEntity<ApiResponse> getUserbyId(@PathVariable(value = "userId") Long userId) {
 
         try {
-            UserResponseDto responseDTO = userService.getUserbyId(userId);
+            UserResponseDto responseDTO = userService.getUserById(userId);
 
             return new ResponseEntity<>(
                     new ApiResponse(HttpStatus.OK, ApiResponsesEnum.USER_FETCH_SUCCESSFULLY.getValue(), responseDTO),
@@ -70,23 +70,6 @@ public class UserController {
             LOGGER.error("get User By Id Error : {1}", e);
             throw new CustomException(ExceptionEnum.SOMETHING_WENT_WRONG.getValue(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
-    }
-
-
-    @PostMapping
-    public ResponseEntity<ApiResponse> insertUser(@Valid @RequestBody UserRequestDto userRequestDto) throws CustomException {
-
-        try {
-            UserRequestDto responseDTO = userService.insertUser(userRequestDto);
-            return new ResponseEntity<>(
-                    new ApiResponse(HttpStatus.OK, ApiResponsesEnum.USER_CREATION_SUCCESSFULLY.getValue(), responseDTO),
-                    HttpStatus.OK);
-
-        } catch (Exception e) {
-            LOGGER.error("Exception while update User info : {1}", e);
-            throw new CustomException(ExceptionEnum.SOMETHING_WENT_WRONG.getValue(), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-
     }
 
 
