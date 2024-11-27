@@ -1,21 +1,23 @@
-package com.example.springSecurity.serviceImpl;
+package com.demo.spring_security_jwt.serviceImpl;
 
-import com.example.springSecurity.dto.GradeProjection;
-import com.example.springSecurity.dto.GradeRequestDto;
-import com.example.springSecurity.dto.GradeResponseDto;
-import com.example.springSecurity.entity.GradeEntity;
-import com.example.springSecurity.entity.UserEntity;
-import com.example.springSecurity.enums.ExceptionEnum;
-import com.example.springSecurity.exception.CustomException;
-import com.example.springSecurity.repository.GradeRepository;
-import com.example.springSecurity.repository.UserRepository;
-import com.example.springSecurity.service.GradeService;
+import com.demo.spring_security_jwt.dto.GradeProjection;
+import com.demo.spring_security_jwt.dto.GradeRequestDto;
+import com.demo.spring_security_jwt.dto.GradeResponseDto;
+import com.demo.spring_security_jwt.dto.UserResponseDto;
+import com.demo.spring_security_jwt.entity.GradeEntity;
+import com.demo.spring_security_jwt.entity.UserEntity;
+import com.demo.spring_security_jwt.enums.ExceptionEnum;
+import com.demo.spring_security_jwt.exception.CustomException;
+import com.demo.spring_security_jwt.repository.GradeRepository;
+import com.demo.spring_security_jwt.repository.UserRepository;
+import com.demo.spring_security_jwt.service.GradeService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.ui.ModelMap;
 
 @Service
 @RequiredArgsConstructor

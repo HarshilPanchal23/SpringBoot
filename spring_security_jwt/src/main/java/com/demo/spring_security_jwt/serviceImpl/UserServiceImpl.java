@@ -1,17 +1,17 @@
-package com.example.springSecurity.serviceImpl;
+package com.demo.spring_security_jwt.serviceImpl;
 
 
-import com.example.springSecurity.dto.UserRequestDto;
-import com.example.springSecurity.dto.UserResponseDto;
-import com.example.springSecurity.entity.RoleEntity;
-import com.example.springSecurity.entity.UserEntity;
-import com.example.springSecurity.entity.UserRoleEntity;
-import com.example.springSecurity.enums.ExceptionEnum;
-import com.example.springSecurity.exception.CustomException;
-import com.example.springSecurity.repository.RoleRepository;
-import com.example.springSecurity.repository.UserRepository;
-import com.example.springSecurity.repository.UserRoleRepository;
-import com.example.springSecurity.service.UserService;
+import com.demo.spring_security_jwt.dto.UserRequestDto;
+import com.demo.spring_security_jwt.dto.UserResponseDto;
+import com.demo.spring_security_jwt.entity.RoleEntity;
+import com.demo.spring_security_jwt.entity.UserEntity;
+import com.demo.spring_security_jwt.entity.UserRoleEntity;
+import com.demo.spring_security_jwt.enums.ExceptionEnum;
+import com.demo.spring_security_jwt.exception.CustomException;
+import com.demo.spring_security_jwt.repository.RoleRepository;
+import com.demo.spring_security_jwt.repository.UserRepository;
+import com.demo.spring_security_jwt.repository.UserRoleRepository;
+import com.demo.spring_security_jwt.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
@@ -138,21 +138,24 @@ public class UserServiceImpl implements UserService {
     }
 
     private void saveUserRoleMappingId(UserEntity savedUser, RoleEntity roleEntity) {
-        UserRoleEntity userRoleEntity = userRoleRepository.findByUserIdAndRoleId(savedUser, roleEntity)
-                .map(existingUserRoleEntity -> {
-                    if (existingUserRoleEntity.getId() != null) {
-                        return updateUserRoleEntity(existingUserRoleEntity, savedUser, roleEntity);
-                    }
-                    return existingUserRoleEntity;
-                })
-                .orElseGet(() -> {
-                    UserRoleEntity newUserRoleEntity = new UserRoleEntity();
-                    newUserRoleEntity.setUserId(savedUser);
-                    newUserRoleEntity.setRoleId(roleEntity);
-                    return newUserRoleEntity;
-                });
+
+        UserRoleEntity userRoleEntity = null;
+
+        if (savedUser.getId() != null) {
+
+            UserRoleEntity userRoleEntity1 = userRoleRepository.findByUserIdAndRoleId(savedUser, roleEntity).
+                    orElseThrow(() -> new CustomException(ExceptionEnum.ROLE_WITH_ID_NOT_FOUND.getValue(), HttpStatus.NOT_FOUND));
+
+            userRoleEntity = updateUserRoleEntity(userRoleEntity1, savedUser, roleEntity);
+        } else {
+
+            userRoleEntity = new UserRoleEntity();
+            userRoleEntity.setUserId(savedUser);
+            userRoleEntity.setRoleId(roleEntity);
+        }
 
         userRoleRepository.save(userRoleEntity);
+
     }
 
     private UserRoleEntity updateUserRoleEntity(UserRoleEntity userRoleEntity1, UserEntity savedUser, RoleEntity roleEntity) {
