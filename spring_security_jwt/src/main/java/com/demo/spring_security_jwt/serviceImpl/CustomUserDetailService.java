@@ -1,10 +1,10 @@
-package com.example.springSecurity.serviceImpl;
+package com.demo.spring_security_jwt.serviceImpl;
 
-import com.example.springSecurity.entity.UserEntity;
-import com.example.springSecurity.enums.ExceptionEnum;
-import com.example.springSecurity.exception.CustomException;
-import com.example.springSecurity.repository.UserRepository;
-import com.example.springSecurity.repository.UserRoleRepository;
+import com.demo.spring_security_jwt.entity.UserEntity;
+import com.demo.spring_security_jwt.enums.ExceptionEnum;
+import com.demo.spring_security_jwt.exception.CustomException;
+import com.demo.spring_security_jwt.repository.UserRepository;
+import com.demo.spring_security_jwt.repository.UserRoleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -29,7 +29,7 @@ public class CustomUserDetailService implements UserDetailsService {
                 .orElseThrow(() -> new CustomException(ExceptionEnum.USER_WITH_ID_NOT_FOUND.getValue(), HttpStatus.NOT_FOUND));
         if (user == null) {
             System.out.println("User Not Found");
-            throw new UsernameNotFoundException("User not found");
+            throw new UsernameNotFoundException("user not found");
         }
         List<String> roles = userRoleRepository.findByUserId(user.getId());
         System.out.println("byUserId = " + roles.toString());
