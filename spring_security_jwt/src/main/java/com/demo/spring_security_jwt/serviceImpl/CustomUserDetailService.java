@@ -12,6 +12,7 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,10 +24,13 @@ public class CustomUserDetailService implements UserDetailsService {
 
     private final UserRoleRepository userRoleRepository;
 
+    private BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
+
+
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        UserEntity user = userRepository.findByFirstName(username)
-                .orElseThrow(() -> new CustomException(ExceptionEnum.USER_WITH_ID_NOT_FOUND.getValue(), HttpStatus.NOT_FOUND));
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        UserEntity user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new CustomException(ExceptionEnum.USER_WITH_EMAIL_NOT_FOUND.getValue(), HttpStatus.NOT_FOUND));
         if (user == null) {
             System.out.println("User Not Found");
             throw new UsernameNotFoundException("user not found");
@@ -39,8 +43,7 @@ public class CustomUserDetailService implements UserDetailsService {
                 .map(role -> new SimpleGrantedAuthority(role))
                 .toList();
 
-        // Create and return UserDetails
-        return new User(user.getFirstName(), user.getPassword(), authorities);
+        return new User(user.getEmail(), encoder.encode(user.getPassword()), authorities);
 
 
     }
