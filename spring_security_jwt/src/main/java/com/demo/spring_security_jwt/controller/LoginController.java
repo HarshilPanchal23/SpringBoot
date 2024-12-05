@@ -2,6 +2,7 @@ package com.demo.spring_security_jwt.controller;
 
 import com.demo.spring_security_jwt.dto.JwtResponseDto;
 import com.demo.spring_security_jwt.dto.LoginRequestDto;
+import com.demo.spring_security_jwt.dto.RefreshTokenRequestDto;
 import com.demo.spring_security_jwt.service.LoginService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,6 +18,12 @@ public class LoginController {
     @PostMapping("/login")
     public JwtResponseDto login(@RequestBody LoginRequestDto loginRequestDto) {
         return loginService.verify(loginRequestDto);
+    }
+
+    @PostMapping("/refreshToken")
+    public JwtResponseDto refreshToken(@RequestBody RefreshTokenRequestDto refreshTokenRequestDto){
+
+        return loginService.generateRefreshToken(refreshTokenRequestDto);
     }
 
 }

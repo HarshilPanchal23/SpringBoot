@@ -2,12 +2,14 @@ package com.demo.spring_security_jwt.serviceImpl;
 
 import com.demo.spring_security_jwt.dto.JwtResponseDto;
 import com.demo.spring_security_jwt.dto.LoginRequestDto;
+import com.demo.spring_security_jwt.dto.RefreshTokenRequestDto;
 import com.demo.spring_security_jwt.entity.UserEntity;
 import com.demo.spring_security_jwt.enums.ExceptionEnum;
 import com.demo.spring_security_jwt.exception.CustomException;
 import com.demo.spring_security_jwt.repository.UserRepository;
 import com.demo.spring_security_jwt.repository.UserRoleRepository;
 import com.demo.spring_security_jwt.service.LoginService;
+import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -30,6 +32,38 @@ public class LoginServiceImpl implements LoginService {
                 .orElseThrow(() -> new CustomException(ExceptionEnum.USER_WITH_ID_NOT_FOUND.getValue(), HttpStatus.NOT_FOUND));
         List<String> rolesList = userRoleRepository.findByUserId(userEntity.getId());
         return jwtService.generateToken(userEntity.getEmail(), rolesList);
+    }
+
+    @Override
+    public JwtResponseDto generateRefreshToken(RefreshTokenRequestDto refreshTokenRequestDto) {
+
+
+//        String bearerToken = refreshTokenRequestDto.getRefershToken();
+//        System.out.println("bearerToken = " + bearerToken);
+//
+//        String username = jwtService.extractUsername(bearerToken);
+//
+//        Claims claims = Jwts.claims().setSubject(username);
+//        Integer userIdToken = jwtTokenProvider.getUserIdToken(bearerToken);
+//        Optional<UserRoleEntity> byId = userRoleRepository.findById(userIdToken);
+//
+//        Optional<RoleEntity> byRoleNameIgnoreCase = roleRepository.findByRoleNameIgnoreCase(byId.get().getRole().getRoleName());
+//
+//        claims.put(USER_ID, userIdToken);
+//        claims.put(SYSTEM_ROLE, byRoleNameIgnoreCase.get().getRoleName());
+//        Date now = new Date();
+//        Date validity = new Date(now.getTime() + 1800000);
+//        String accessToken = Jwts.builder()
+//                .setClaims(claims)
+//                .setIssuedAt(now)
+//                .setExpiration(validity)
+//                .signWith(SignatureAlgorithm.HS256, apiKey)
+//                .compact();
+//
+//        return new RefreshTokenResponse(accessToken);
+
+
+        return null;
     }
 
 }

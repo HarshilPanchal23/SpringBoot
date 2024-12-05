@@ -4,8 +4,10 @@ import com.demo.spring_security_jwt.dto.JwtResponseDto;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -24,34 +26,54 @@ import java.util.function.Function;
 public class JwtService {
 
     private static final String SYSTEM_ROLE = "roles";
+    private static final String AUTHORIZATION = "Authorization";
 
-    private String secretKey = "";
 
-    public JwtService() throws NoSuchAlgorithmException {
-        KeyGenerator keyGenerator = KeyGenerator.getInstance("HmacSHA256");
-        SecretKey sk = keyGenerator.generateKey();
-        secretKey = Base64.getEncoder().encodeToString(sk.getEncoded());
-    }
+    private final String apiKey = "e3LHqZMEtP7pc8HTJeU7cnslny6OQhNgaHa3Jdbjd0jK4AJUBz3xoRLS6AtuWgv4g0pu2L7OIpZvMOtGhGIZLSQ0P0oiQcY1OrvM";
+
 
     public JwtResponseDto generateToken(String email, List<String> roles) {
-        Map<String, Object> claims = new HashMap<>();
-        claims.put(SYSTEM_ROLE, roles);
+
+        Map<String, Object> accessTokenClaims = new HashMap<>();
+        accessTokenClaims.put(SYSTEM_ROLE, roles);
         String accessToken = Jwts.builder()
                 .claims()
-                .add(claims)
+                .add(accessTokenClaims)
                 .subject(email)
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + 60 * 60 * 30))
                 .and()
-                .signWith(getSecretKey())
+                .signWith(SignatureAlgorithm.HS256, apiKey)
                 .compact();
-        return new JwtResponseDto(accessToken, null);
+
+        Map<String, Object> refreshTokenClaims = new HashMap<>();
+        refreshTokenClaims.put(SYSTEM_ROLE, roles);
+        String refreshToken = Jwts.builder()
+                .claims()
+                .add(refreshTokenClaims)
+                .subject(email)
+                .issuedAt(new Date(System.currentTimeMillis()))
+                .expiration(new Date(System.currentTimeMillis() + 1800000))
+                .and()
+                .signWith(SignatureAlgorithm.HS256, apiKey)
+                .compact();
+
+        return new JwtResponseDto(accessToken, refreshToken);
+    }
+
+    public String resolveToken(HttpServletRequest request) {
+        String bearerToken = request.getHeader(AUTHORIZATION);
+        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
+            return bearerToken.substring(7);
+        }
+        return bearerToken;
     }
 
     private SecretKey getSecretKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
+        byte[] keyBytes = Decoders.BASE64.decode(apiKey);
         return Keys.hmacShaKeyFor(keyBytes);
     }
+
 
     public String extractUsername(String token) {
 
@@ -64,6 +86,7 @@ public class JwtService {
 
         return getSubject.apply(claims);
     }
+
 
     private Claims extractAllClaims(String token) {
 

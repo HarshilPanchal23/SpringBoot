@@ -32,7 +32,7 @@ public class GradeController {
     private static final Logger LOGGER = LoggerFactory.getLogger(GradeController.class);
 
     @GetMapping("/{userId}")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<ApiResponse> getAllGradeByUser(@RequestParam(value = "pageNo",
             defaultValue = "0") Integer pageNo,
                                                          @RequestParam(value = "pageSize",
