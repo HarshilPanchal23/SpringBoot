@@ -21,6 +21,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -37,6 +38,8 @@ public class UserServiceImpl implements UserService {
     private final ModelMapper modelMapper;
     private final RoleRepository roleRepository;
     private final UserRoleRepository userRoleRepository;
+
+    private BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
 
 
     @Override
@@ -123,7 +126,7 @@ public class UserServiceImpl implements UserService {
                     .email(userRequestDto.getEmail())
                     .firstName(userRequestDto.getFirstName())
                     .lastName(userRequestDto.getLastName())
-                    .password(userRequestDto.getPassword())
+                    .password(encoder.encode(userRequestDto.getPassword()))
                     .status(userRequestDto.getStatus())
                     .deactivate(userRequestDto.getDeactivate())
                     .build();
@@ -138,24 +141,21 @@ public class UserServiceImpl implements UserService {
     }
 
     private void saveUserRoleMappingId(UserEntity savedUser, RoleEntity roleEntity) {
-
-        UserRoleEntity userRoleEntity = null;
-
-        if (savedUser.getId() != null) {
-
-            UserRoleEntity userRoleEntity1 = userRoleRepository.findByUserIdAndRoleId(savedUser, roleEntity).
-                    orElseThrow(() -> new CustomException(ExceptionEnum.ROLE_WITH_ID_NOT_FOUND.getValue(), HttpStatus.NOT_FOUND));
-
-            userRoleEntity = updateUserRoleEntity(userRoleEntity1, savedUser, roleEntity);
-        } else {
-
-            userRoleEntity = new UserRoleEntity();
-            userRoleEntity.setUserId(savedUser);
-            userRoleEntity.setRoleId(roleEntity);
-        }
+        UserRoleEntity userRoleEntity = userRoleRepository.findByUserIdAndRoleId(savedUser, roleEntity)
+                .map(existingUserRoleEntity -> {
+                    if (existingUserRoleEntity.getId() != null) {
+                        return updateUserRoleEntity(existingUserRoleEntity, savedUser, roleEntity);
+                    }
+                    return existingUserRoleEntity;
+                })
+                .orElseGet(() -> {
+                    UserRoleEntity newUserRoleEntity = new UserRoleEntity();
+                    newUserRoleEntity.setUserId(savedUser);
+                    newUserRoleEntity.setRoleId(roleEntity);
+                    return newUserRoleEntity;
+                });
 
         userRoleRepository.save(userRoleEntity);
-
     }
 
     private UserRoleEntity updateUserRoleEntity(UserRoleEntity userRoleEntity1, UserEntity savedUser, RoleEntity roleEntity) {
@@ -179,7 +179,6 @@ public class UserServiceImpl implements UserService {
 
     }
 
-
     private List<UserResponseDto> mapToListOfUserRequestDto(List<UserEntity> userEntityList) {
         // Using ModelMapper to convert the list of UserEntity to UserRequestDto.
         return modelMapper.map(userEntityList, new TypeToken<List<UserResponseDto>>() {
@@ -189,7 +188,6 @@ public class UserServiceImpl implements UserService {
     private UserEntity checkForUserExistOrNot(Long userId) {
         return userRepository.findById(userId).orElseThrow(
                 () -> new CustomException(ExceptionEnum.USER_WITH_ID_NOT_FOUND.getValue(), HttpStatus.NOT_FOUND));
-
     }
 
 

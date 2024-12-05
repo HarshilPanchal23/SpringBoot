@@ -9,6 +9,7 @@ import com.demo.spring_security_jwt.enums.ExceptionEnum;
 import com.demo.spring_security_jwt.enums.FilterEnum;
 import com.demo.spring_security_jwt.exception.CustomException;
 
+import com.demo.spring_security_jwt.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -19,6 +20,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -27,9 +29,11 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/user")
 public class UserController {
 
-    private final com.demo.spring_security_jwt.service.UserService userService;
+    private final UserService userService;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UserController.class);
+
+    private BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
 
 
     @GetMapping
