@@ -17,4 +17,6 @@ public interface UserRoleRepository extends JpaRepository<UserRoleEntity,Long> {
     @Query(nativeQuery = true,value = "select rt.role_name from user_role_table urt inner join role_table rt on rt.id = urt.role_id where urt.user_id = :id")
     List<String> findByUserId(@Param("id") Long id);
 
+    List<UserRoleEntity> findByUserId(UserEntity userId);
+
 }
