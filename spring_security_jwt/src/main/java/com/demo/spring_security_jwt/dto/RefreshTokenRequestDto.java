@@ -5,5 +5,5 @@ import lombok.Data;
 @Data
 public class RefreshTokenRequestDto {
 
-    private String refershToken;
+    private String refreshToken;
 }

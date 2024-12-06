@@ -16,9 +16,7 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
-import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
-import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import java.util.function.Function;
 
@@ -28,32 +26,35 @@ public class JwtService {
     private static final String SYSTEM_ROLE = "roles";
     private static final String AUTHORIZATION = "Authorization";
 
+    private static final String USER_ID = "userId";
 
     private final String apiKey = "e3LHqZMEtP7pc8HTJeU7cnslny6OQhNgaHa3Jdbjd0jK4AJUBz3xoRLS6AtuWgv4g0pu2L7OIpZvMOtGhGIZLSQ0P0oiQcY1OrvM";
 
 
-    public JwtResponseDto generateToken(String email, List<String> roles) {
+    public JwtResponseDto generateToken(String email, Long userId, List<String> roles) {
 
         Map<String, Object> accessTokenClaims = new HashMap<>();
+        accessTokenClaims.put(USER_ID, userId);
         accessTokenClaims.put(SYSTEM_ROLE, roles);
         String accessToken = Jwts.builder()
                 .claims()
                 .add(accessTokenClaims)
                 .subject(email)
                 .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + 60 * 60 * 30))
+                .expiration(new Date(System.currentTimeMillis() + 15 * 60 * 1000))
                 .and()
                 .signWith(SignatureAlgorithm.HS256, apiKey)
                 .compact();
 
         Map<String, Object> refreshTokenClaims = new HashMap<>();
+        refreshTokenClaims.put(USER_ID, userId);
         refreshTokenClaims.put(SYSTEM_ROLE, roles);
         String refreshToken = Jwts.builder()
                 .claims()
                 .add(refreshTokenClaims)
                 .subject(email)
                 .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + 1800000))
+                .expiration(new Date(System.currentTimeMillis() + 2 * 60 * 60 * 1000))
                 .and()
                 .signWith(SignatureAlgorithm.HS256, apiKey)
                 .compact();
@@ -86,6 +87,29 @@ public class JwtService {
 
         return getSubject.apply(claims);
     }
+
+    public Long getUserIdToken(String token) {
+        Object userId = Jwts.parser()
+                .verifyWith(getSecretKey())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload()
+                .get(USER_ID);
+
+        Long userIdAsLong;
+
+        if (userId instanceof Integer) {
+            userIdAsLong = ((Integer) userId).longValue(); // Convert Integer to Long
+        } else if (userId instanceof Long) {
+            userIdAsLong = (Long) userId; // Use as is
+        } else {
+            throw new IllegalArgumentException("USER_ID is not of type Integer or Long");
+        }
+
+        System.out.println("userIdAsLong = " + userIdAsLong);
+        return userIdAsLong;
+    }
+
 
 
     private Claims extractAllClaims(String token) {
