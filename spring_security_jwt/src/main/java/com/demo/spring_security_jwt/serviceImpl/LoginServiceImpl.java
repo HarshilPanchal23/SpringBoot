@@ -75,7 +75,7 @@ public class LoginServiceImpl implements LoginService {
 
         // Generate access token
         Date now = new Date();
-        Date validity = new Date(now.getTime() + 30 * 60 * 1000); // 30 minutes
+        Date validity = new Date(now.getTime() + 15 * 60 * 1000); // 30 minutes
         String accessToken = Jwts.builder()
                 .subject(username)
                 .claims(claims)
