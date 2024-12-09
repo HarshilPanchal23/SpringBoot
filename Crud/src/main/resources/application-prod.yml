@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: coreDB
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    password: Harshil84012
+    url: jdbc:mysql://core-db.cx66mowuwav5.us-east-1.rds.amazonaws.com:3306/coreDB
+    username: admin
+  jpa:
+    hibernate:
+      ddl-auto: update
