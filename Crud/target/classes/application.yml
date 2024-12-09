@@ -1,0 +1,6 @@
+spring:
+  profiles:
+    active: dev
+
+  messages:
+    basename:  ${spring.profiles.active} Profile is Active
