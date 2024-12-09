@@ -83,7 +83,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserResponseDto getUserbyId(Long userId) {
+    public UserResponseDto getUserById(Long userId) {
 
         Optional<UserEntity> userEntityByUser = userRepository.findByIdAndStatusAndDeactivate(userId, Boolean.TRUE, Boolean.FALSE);
 
