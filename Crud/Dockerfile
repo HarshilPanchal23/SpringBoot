@@ -1,15 +1,16 @@
-# Use an official Java runtime as a parent image
-FROM openjdk:17-jdk-slim AS build
+###################
+### build stage ###
+###################
+FROM maven:3.8.6-amazoncorretto-17 AS build
+WORKDIR /usr/app/
+COPY pom.xml /usr/app
+COPY src /usr/app/src
+RUN mvn clean install -DskipTests -Dmaven.javadoc.skip=true
 
-# Set the working directory in the container
-WORKDIR /app
-
-# Copy the current directory contents into the container at /app
-COPY  target/springboot-mysql-docker.jar   /app/springboot-mysql-docker.jar
-
- # Expose the port your application runs on (e.g., 8080)
-EXPOSE 9090
-
-
-# Run the Java program
-ENTRYPOINT ["java", "-jar", "/app/springboot-mysql-docker.jar"]
+########################
+### production stage ###
+########################
+FROM amazoncorretto:17-alpine3.13 AS production
+WORKDIR /usr/app/
+COPY --from=build /usr/app/target/springboot-mysql-docker.jar /usr/app/target/
+CMD [ "sh", "-c", "java -jar /usr/app/target/springboot-mysql-docker.jar" ]
