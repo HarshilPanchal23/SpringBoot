@@ -1,20 +1,44 @@
+#version: "3.8"
+#services:
+#  mysqldb:
+#    image: mysql:5.7
+#    container_name: mysql1
+#    networks:
+#      - springboot-db-net
+#    environment:
+#      - MYSQL_ROOT_PASSWORD=root
+#      - MYSQL_DATABASE=Crud
+#    ports:
+#      - "3307:3306"
+#    volumes:
+#      - .db_data:/var/lib/mysql
+#      - ./mysql-init:/docker-entrypoint-initdb.d
+#
+#
+#  application:
+#    build:
+#      context: .
+#      dockerfile: Dockerfile
+#    ports:
+#      - "8081:8080"
+#    networks:
+#      - springboot-db-net
+#    environment:
+#      SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:3306/Crud
+#      SPRING_DATASOURCE_USERNAME: root
+#      SPRING_DATASOURCE_PASSWORD: root
+#    depends_on:
+#      - mysqldb
+#
+#
+#networks:
+#  springboot-db-net:
+#
+#volumes:
+#  db_data:
+
 version: "3.8"
 services:
-  mysqldb:
-    image: mysql:5.7
-    container_name: mysql1
-    networks:
-      - springboot-db-net
-    environment:
-      - MYSQL_ROOT_PASSWORD=root
-      - MYSQL_DATABASE=Crud
-    ports:
-      - "3307:3306"
-    volumes:
-      - .db_data:/var/lib/mysql
-      - ./mysql-init:/docker-entrypoint-initdb.d
-
-
   application:
     build:
       context: .
@@ -24,15 +48,9 @@ services:
     networks:
       - springboot-db-net
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:3306/Crud
-      SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: root
-    depends_on:
-      - mysqldb
-
+      SPRING_DATASOURCE_URL: jdbc:mysql://springboot-mysql.cx66mowuwav5.us-east-1.rds.amazonaws.com:3306/crud?createDatabaseIfNotExist=true
+      SPRING_DATASOURCE_USERNAME: admin
+      SPRING_DATASOURCE_PASSWORD: Harshil84012
 
 networks:
   springboot-db-net:
-
-volumes:
-  db_data:
