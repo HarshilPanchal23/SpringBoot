@@ -3,12 +3,10 @@ spring:
     name: core
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
     password: root
-#    url: jdbc:mysql://localhost:3306/crud
-    url: jdbc:mysql://crud.cx66mowuwav5.us-east-1.rds.amazonaws.com:3306/crud
-    username: admin
-
-#    username: root
+    url: jdbc:mysql://localhost:3306/Crud
+    #    url: jdbc:mysql://devdb.cx66mowuwav5.us-east-1.rds.amazonaws.com:3306/crud?createDatabaseIfNotExist=true
   jpa:
     hibernate:
       ddl-auto: update

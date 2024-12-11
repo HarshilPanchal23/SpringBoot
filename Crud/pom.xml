@@ -87,7 +87,8 @@
 				</configuration>
 			</plugin>
 		</plugins>
-		<finalName>BackEnd-Application</finalName>
+		<finalName>springboot-mysql-docker</finalName>
+
 	</build>
 	<profiles>
 		<profile>
