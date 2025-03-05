@@ -41,7 +41,6 @@ public class GradeServiceImpl implements GradeService {
             gradeEntity = updateGradeEntity(gradeEntity1, gradeRequestDto, userEntity);
 
         } else {
-            System.out.println("userEntity = " + userEntity.toString());
             gradeEntity = gradeEntity.builder()
                     .totalGrade(gradeRequestDto.getTotalGrade())
                     .userEntity(userEntity)
@@ -62,12 +61,10 @@ public class GradeServiceImpl implements GradeService {
     @Override
     public GradeResponseDto insertGrade(GradeRequestDto gradeRequestDto) {
         GradeEntity gradeEntity = insertUpdateGrade(gradeRequestDto);
-        System.out.println("gradeEntity = " + gradeEntity.toString());
         modelMapper.typeMap(GradeEntity.class, GradeResponseDto.class).addMappings(mapper -> {
             mapper.map(GradeEntity::getUserEntity, GradeResponseDto::setUserResponseDto);
         });
         GradeResponseDto gradeResponseDto = modelMapper.map(gradeEntity, GradeResponseDto.class);
-        System.out.println("gradeResponseDto = " + gradeResponseDto.toString());
         return gradeResponseDto;
     }
 
