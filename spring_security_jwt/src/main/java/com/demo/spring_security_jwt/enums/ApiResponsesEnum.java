@@ -11,6 +11,8 @@ public enum ApiResponsesEnum {
 
     ALL_USER_RETRIEVAL_SUCCESS("All User retrieval Successfully", "ALL_USER_RETRIEVAL_SUCCESS"),
 
+    TOKEN_RETRIEVAL_SUCCESS("Token Retrieval Successfully", "TOKEN_RETRIEVAL_SUCCESS"),
+
     USER_CREATION_SUCCESSFULLY("User created successfully", "USER_CREATION_SUCCESSFULLY"),
 
     USER_DELETED_SUCCESSFULLY("User Deleted Successfully", "USER_DELETED_SUCCESSFULLY"),

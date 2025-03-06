@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: core
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    password: root
+    url: jdbc:mysql://localhost:3306/ElasticSearch
+    #    url: jdbc:mysql://devdb.cx66mowuwav5.us-east-1.rds.amazonaws.com:3306/crud?createDatabaseIfNotExist=true
+  jpa:
+    hibernate:
+      ddl-auto: update
+  data:
+    elasticsearch:
+      repositories:
+        enabled: true

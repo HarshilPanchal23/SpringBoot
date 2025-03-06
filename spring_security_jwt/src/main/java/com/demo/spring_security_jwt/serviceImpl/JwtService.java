@@ -106,7 +106,6 @@ public class JwtService {
             throw new IllegalArgumentException("USER_ID is not of type Integer or Long");
         }
 
-        System.out.println("userIdAsLong = " + userIdAsLong);
         return userIdAsLong;
     }
 
@@ -149,7 +148,6 @@ public class JwtService {
         }
 
         UserDetails userDetails = new User(extractUsername(token), extractUsername(token), true, false, false, false, grantedAuthorities);
-        System.out.println("userDetails is ::= " + userDetails);
         return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
     }
 

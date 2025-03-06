@@ -32,12 +32,9 @@ public class CustomUserDetailService implements UserDetailsService {
         UserEntity user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new CustomException(ExceptionEnum.USER_WITH_EMAIL_NOT_FOUND.getValue(), HttpStatus.NOT_FOUND));
         if (user == null) {
-            System.out.println("User Not Found");
             throw new UsernameNotFoundException("user not found");
         }
         List<String> roles = userRoleRepository.findByUserId(user.getId());
-        System.out.println("byUserId = " + roles.toString());
-
         // Convert roles to authorities
         List<SimpleGrantedAuthority> authorities = roles.stream()
                 .map(role -> new SimpleGrantedAuthority(role))

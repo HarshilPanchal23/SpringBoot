@@ -1,7 +1,6 @@
-package com.demo.spring_security_jwt.entity;
+package com.demo.elasticSearch.entity;
 
-
-import com.demo.spring_security_jwt.dto.BaseEntityAudit;
+import com.example.core.dto.BaseEntityAudit;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -42,13 +41,9 @@ public class UserEntity extends BaseEntityAudit implements Serializable {
     @Column(name = "password", nullable = false)
     private String password;
 
-    @Column(name = "login_counter")
-    private Long loginCounter = 0L;
 
-    @Column(name = "account_non_locked")
-    private Boolean accountNonLocked = false;
 
-    public UserEntity(long l) {
-        this.id = l;
-    }
+//    public UserEntity(long l) {
+//        this.id = l;
+//    }
 }

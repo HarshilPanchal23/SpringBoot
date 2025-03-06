@@ -1,17 +1,12 @@
-package com.demo.spring_security_jwt.serviceImpl;
+package com.demo.elasticSearch.serviceImpl;
 
-
-import com.demo.spring_security_jwt.dto.UserRequestDto;
-import com.demo.spring_security_jwt.dto.UserResponseDto;
-import com.demo.spring_security_jwt.entity.RoleEntity;
-import com.demo.spring_security_jwt.entity.UserEntity;
-import com.demo.spring_security_jwt.entity.UserRoleEntity;
-import com.demo.spring_security_jwt.enums.ExceptionEnum;
-import com.demo.spring_security_jwt.exception.CustomException;
-import com.demo.spring_security_jwt.repository.RoleRepository;
-import com.demo.spring_security_jwt.repository.UserRepository;
-import com.demo.spring_security_jwt.repository.UserRoleRepository;
-import com.demo.spring_security_jwt.service.UserService;
+import com.example.core.dto.UserRequestDto;
+import com.example.core.dto.UserResponseDto;
+import com.example.core.entity.UserEntity;
+import com.example.core.enums.ExceptionEnum;
+import com.example.core.exception.CustomException;
+import com.example.core.repository.UserRepository;
+import com.example.core.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
@@ -21,8 +16,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -37,24 +30,23 @@ public class UserServiceImpl implements UserService {
     private static final Logger LOGGER = LoggerFactory.getLogger(UserServiceImpl.class);
 
     private final ModelMapper modelMapper;
-    private final RoleRepository roleRepository;
-    private final UserRoleRepository userRoleRepository;
 
-    private final PasswordEncoder passwordEncoder;
 
     @Override
-    public UserResponseDto insertUser(UserRequestDto userRequestDto) throws CustomException {
+    public UserRequestDto insertUser(UserRequestDto userRequestDto) throws CustomException {
 
         userRequestDto.setId(null);
         UserEntity userEntity = this.insertUpdateUser(userRequestDto);
-        UserResponseDto userResponseDto = modelMapper.map(userEntity, UserResponseDto.class);
-        return userResponseDto;
+        UserRequestDto userRequestDto1 = modelMapper.map(userEntity, UserRequestDto.class);
+        System.out.println("userRequestDto1 = " + userRequestDto1.toString());
+        return userRequestDto1;
     }
 
     @Override
     public UserRequestDto updateUser(UserRequestDto userRequestDto) throws CustomException {
         UserEntity userEntity = insertUpdateUser(userRequestDto);
         UserRequestDto userRequestDto1 = modelMapper.map(userEntity, UserRequestDto.class);
+        System.out.println("userRequestDto1 = " + userRequestDto1.toString());
         return userRequestDto1;
     }
 
@@ -108,56 +100,26 @@ public class UserServiceImpl implements UserService {
 
         UserEntity userEntity = null;
 
-        RoleEntity roleEntity = roleRepository.findById(userRequestDto.getRoleId()).orElseThrow(
-                () -> new CustomException(ExceptionEnum.ROLE_WITH_ID_NOT_FOUND.getValue(), HttpStatus.NOT_FOUND));
         if (userRequestDto.getId() != null) {
 
             UserEntity userEntityOptional = checkForUserExistOrNot(userRequestDto.getId());
+
             userEntity = updateUserEntity(userEntityOptional, userRequestDto);
 
         } else {
 
-            userEntity = userEntity.builder()
+            userEntity.builder()
                     .email(userRequestDto.getEmail())
                     .firstName(userRequestDto.getFirstName())
                     .lastName(userRequestDto.getLastName())
-                    .password(passwordEncoder.encode(userRequestDto.getPassword()))
+                    .password(userRequestDto.getPassword())
                     .status(userRequestDto.getStatus())
                     .deactivate(userRequestDto.getDeactivate())
                     .build();
         }
 
-        UserEntity savedUser = userRepository.save(userEntity);
-        saveUserRoleMappingId(savedUser, roleEntity);
-        return savedUser;
+        return userRepository.save(userEntity);
 
-    }
-
-    private void saveUserRoleMappingId(UserEntity savedUser, RoleEntity roleEntity) {
-        UserRoleEntity userRoleEntity = userRoleRepository.findByUserIdAndRoleId(savedUser, roleEntity)
-                .map(existingUserRoleEntity -> {
-                    if (existingUserRoleEntity.getId() != null) {
-                        return updateUserRoleEntity(existingUserRoleEntity, savedUser, roleEntity);
-                    }
-                    return existingUserRoleEntity;
-                })
-                .orElseGet(() -> {
-                    UserRoleEntity newUserRoleEntity = new UserRoleEntity();
-                    newUserRoleEntity.setUserId(savedUser);
-                    newUserRoleEntity.setRoleId(roleEntity);
-                    return newUserRoleEntity;
-                });
-
-        userRoleRepository.save(userRoleEntity);
-    }
-
-    private UserRoleEntity updateUserRoleEntity(UserRoleEntity userRoleEntity1, UserEntity savedUser, RoleEntity roleEntity) {
-
-        userRoleEntity1.setRoleId(roleEntity);
-        userRoleEntity1.setUserId(savedUser);
-        userRoleEntity1.setStatus(Boolean.TRUE);
-        userRoleEntity1.setDeactivate(Boolean.FALSE);
-        return userRoleEntity1;
     }
 
     private UserEntity updateUserEntity(UserEntity userEntityOptional, UserRequestDto userRequestDto) {
@@ -172,6 +134,7 @@ public class UserServiceImpl implements UserService {
 
     }
 
+
     private List<UserResponseDto> mapToListOfUserRequestDto(List<UserEntity> userEntityList) {
         // Using ModelMapper to convert the list of UserEntity to UserRequestDto.
         return modelMapper.map(userEntityList, new TypeToken<List<UserResponseDto>>() {
@@ -181,6 +144,7 @@ public class UserServiceImpl implements UserService {
     private UserEntity checkForUserExistOrNot(Long userId) {
         return userRepository.findById(userId).orElseThrow(
                 () -> new CustomException(ExceptionEnum.USER_WITH_ID_NOT_FOUND.getValue(), HttpStatus.NOT_FOUND));
+
     }
 
 
