@@ -42,6 +42,12 @@ public class UserEntity extends BaseEntityAudit implements Serializable {
     @Column(name = "password", nullable = false)
     private String password;
 
+    @Column(name = "login_counter")
+    private Long loginCounter = 0L;
+
+    @Column(name = "account_non_locked")
+    private Boolean accountNonLocked = false;
+
     public UserEntity(long l) {
         this.id = l;
     }

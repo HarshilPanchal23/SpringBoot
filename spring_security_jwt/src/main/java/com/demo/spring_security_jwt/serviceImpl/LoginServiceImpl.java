@@ -17,7 +17,6 @@ import com.demo.spring_security_jwt.repository.UserRoleRepository;
 import com.demo.spring_security_jwt.service.LoginService;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -49,16 +48,39 @@ public class LoginServiceImpl implements LoginService {
 
     @Override
     public JwtResponseDto verify(LoginRequestDto loginRequestDto) {
+        UserEntity userEntity = validateUserCredentials(loginRequestDto);
+        List<String> rolesList = userRoleRepository.findByUserId(userEntity.getId());
+        return jwtService.generateToken(userEntity.getEmail(), userEntity.getId(), rolesList);
+    }
 
+    public UserEntity validateUserCredentials(LoginRequestDto loginRequestDto) {
         UserEntity userEntity = userRepository.findByEmail(loginRequestDto.getEmail())
                 .orElseThrow(() -> new CustomException(ExceptionEnum.USER_WITH_ID_NOT_FOUND.getValue(), HttpStatus.NOT_FOUND));
-        if (this.passwordEncoder.matches(loginRequestDto.getPassword(), userEntity.getPassword())) {
-            List<String> rolesList = userRoleRepository.findByUserId(userEntity.getId());
-            return jwtService.generateToken(userEntity.getEmail(), userEntity.getId(), rolesList);
-        } else {
-            throw new CustomException("password does not match", HttpStatus.UNAUTHORIZED);
+        if (userEntity.getAccountNonLocked()) {
+            throw new CustomException(ExceptionEnum.ACCOUNT_IS_LOCKED.getMessage(), HttpStatus.UNAUTHORIZED);
+        }
+        if (!passwordEncoder.matches(loginRequestDto.getPassword(), userEntity.getPassword())) {
+            this.updateFailAttempts(userEntity);
+            throw new CustomException(ExceptionEnum.PASSWORD_NOT_MATCHED.getMessage(), HttpStatus.UNAUTHORIZED);
+        }
+
+        return userEntity;
+    }
+
+    private static final int MAX_FAILED_ATTEMPTS = 3;
+
+    private void updateFailAttempts(UserEntity userEntity) {
+        if (userEntity != null && !userEntity.getAccountNonLocked()) {
+            long failedAttempts = userEntity.getLoginCounter() != null ? userEntity.getLoginCounter() + 1 : 1;
+            userEntity.setLoginCounter(failedAttempts);
+
+            if (failedAttempts >= MAX_FAILED_ATTEMPTS) {
+                userEntity.setAccountNonLocked(true); // Lock the account
+            }
+            userRepository.save(userEntity);
         }
     }
+
 
     @Override
     public RefreshTokenResponse generateRefreshToken(RefreshTokenRequestDto refreshTokenRequestDto) {
